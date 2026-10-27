@@ -1,17 +1,20 @@
-/* 엑셀 저장 내용: 시트 3개(정산 요약, 세대별, 기금 장부)의 칸 값과 숫자 서식. 파일 쓰기는 xlsx.ts가 한다. */
+/* 엑셀 저장 내용: 시트 4개(정산표, 정산 요약, 세대별, 기금 장부)의 칸 값과 숫자 서식. 파일 쓰기는 xlsx.ts가 한다. */
 import { fileTag } from './bills';
+import { buildStatementSheet, type GridSpec } from './xlsxStatement';
 import { dotDate } from './format';
 import { buildLedger } from './ledger';
 import { calcPeriod, cfgOf, monthsLabel, periodLabel, prevPeriodOf } from './period';
 import { sortTiers } from './calc';
 import type { AppData, Method } from './schema';
 
-export const NF = { int: '#,##0', price: '#,##0.00', pct: '0.0%' } as const;
+export const NF = { int: '#,##0', price: '#,##0.00', pct: '0.0%', neg: '#,##0;[Red]-#,##0' } as const;
 export type Fmt = (typeof NF)[keyof typeof NF];
 export type Cell = string | number | null;
 export type SheetRow = { cells: Cell[]; fmts?: (Fmt | null)[]; bold?: boolean };
 /** center: 가운데 정렬할 열 번호(0부터) */
 export type SheetSpec = { name: string; title: string; widths: number[]; header?: string[]; rows: SheetRow[]; center?: number[] };
+/** 표 시트(SheetSpec) 또는 칸 위치를 직접 정하는 시트(GridSpec, 정산표) */
+export type AnySheet = SheetSpec | GridSpec;
 
 const STATUS = { draft: '작성 중', done: '확정', closed: '마감' } as const;
 const METHOD: Record<Method, string> = { avg: '평균 단가 (현행)', full: '누수 전액 배분', fullMinusN: '누진 수입 차감 후 전액 배분' };
@@ -20,7 +23,7 @@ export const xlsxFilename = (p: { year: number; m1: number }) => `수도요금_�
 
 const diffOrNull = (a: number | null | undefined, b: number | null | undefined) => (a != null && b != null ? a - b : null);
 
-export function buildWorkbookSpec(data: AppData, periodId: string): SheetSpec[] {
+export function buildWorkbookSpec(data: AppData, periodId: string): [GridSpec, ...SheetSpec[]] {
   const p = data.periods.find((x) => x.id === periodId);
   if (!p) throw new Error('회차를 찾을 수 없습니다');
   const r = calcPeriod(p, data);
@@ -114,5 +117,5 @@ export function buildWorkbookSpec(data: AppData, periodId: string): SheetSpec[] 
     ],
   };
 
-  return [summary, households, fund];
+  return [buildStatementSheet(data, periodId), summary, households, fund];
 }
