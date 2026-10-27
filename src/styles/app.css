@@ -70,3 +70,12 @@
   .chips { scrollbar-width: none; }
   .chips::-webkit-scrollbar { display: none; }
 }
+
+/* 고지서: PDF용 화면 밖 무대(실제 크기), 인쇄 때 숨길 것 */
+.pdf-stage { position: fixed; left: -10000px; top: 0; width: 210mm; pointer-events: none; }
+.pdf-stage .sheet { box-shadow: none; }
+table.form .co { font-size: 12pt; }
+@media print {
+  .install-hint, .toast-slot, .pdf-stage { display: none !important; }
+  html, body { background: #fff !important; }
+}

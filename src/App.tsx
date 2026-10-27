@@ -3,10 +3,22 @@ import { InstallHint } from './components/InstallHint';
 import { TopBar, type View } from './components/TopBar';
 import { requestPersist, type PersistState } from './lib/device';
 import { sortPeriods } from './lib/period';
+import { useBillsPdf } from './components/useBillsPdf';
+import { Bills } from './screens/Bills';
 import { Dashboard } from './screens/dashboard/Dashboard';
 import { FirstRun } from './screens/FirstRun';
 import { Settings } from './screens/Settings';
 import { useStore } from './store';
+
+/** 정산 칸 아래 파일 저장 버튼 */
+function DashExports({ periodId }: { periodId: string }) {
+  const pdf = useBillsPdf(periodId);
+  return (
+    <button className="btn small" disabled={pdf.busy} onClick={() => void pdf.run()}>
+      {pdf.busy ? 'PDF 만드는 중…' : '고지서 PDF 저장'}
+    </button>
+  );
+}
 
 export function App() {
   const { phase, error, data } = useStore();
@@ -56,8 +68,8 @@ export function App() {
       )}
       <main className="wrap">
         {view === 'settings' && <Settings persist={persist} />}
-        {view === 'dash' && periodId && <Dashboard periodId={periodId} />}
-        {view === 'bills' && <p className="note info">고지서 미리보기는 6단계에서 들어옵니다.</p>}
+        {view === 'dash' && periodId && <Dashboard periodId={periodId} exports={<DashExports periodId={periodId} />} />}
+        {view === 'bills' && periodId && <Bills periodId={periodId} onSettings={() => go('settings')} />}
       </main>
     </>
   );
