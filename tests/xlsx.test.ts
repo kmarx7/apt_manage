@@ -26,12 +26,12 @@ describe('엑셀 내용', () => {
     expect(xlsxFilename({ year: 2030, m1: 5 })).toBe('수도요금_정산_2030_05-06.xlsx');
   });
 
-  it('시트 3개: 정산 요약, 세대별, 기금 장부', () => {
-    expect(buildWorkbookSpec(twoPeriods(), '2030-05').map((s) => s.name)).toEqual(['정산 요약', '세대별', '기금 장부']);
+  it('시트 4개: 정산표, 정산 요약, 세대별, 기금 장부', () => {
+    expect(buildWorkbookSpec(twoPeriods(), '2030-05').map((s) => s.name)).toEqual(['정산표', '정산 요약', '세대별', '기금 장부']);
   });
 
   it('정산 요약: 금액은 #,##0, 단가는 #,##0.00, 누수율은 0.0%', () => {
-    const [s] = buildWorkbookSpec(fakeData(), '2030-03');
+    const [, s] = buildWorkbookSpec(fakeData(), '2030-03');
     expect(find(s.rows, '상태')?.cells[1]).toBe('작성 중');
     expect(find(s.rows, '발행일')?.cells[1]).toBe('확정 전');
     expect(find(s.rows, '고지서 총액(원)')).toMatchObject({ cells: ['고지서 총액(원)', 120000], fmts: [null, NF.int] });
@@ -44,7 +44,7 @@ describe('엑셀 내용', () => {
   });
 
   it('세대별: 15열, 지난 회차 비교, 합계 행', () => {
-    const [, h] = buildWorkbookSpec(twoPeriods(), '2030-05');
+    const [, , h] = buildWorkbookSpec(twoPeriods(), '2030-05');
     expect(h.header).toHaveLength(15);
     // A1: 사용량 15, 지난 10 → +5
     expect(h.rows[0].cells.slice(0, 8)).toEqual([1, '1동', 'A1', 110, 125, 15, 10, 5]);
@@ -59,7 +59,7 @@ describe('엑셀 내용', () => {
   });
 
   it('기금 장부: 확정·예정 구분과 잔액', () => {
-    const [, , f] = buildWorkbookSpec(twoPeriods(), '2030-05');
+    const [, , , f] = buildWorkbookSpec(twoPeriods(), '2030-05');
     expect(f.header).toEqual(['날짜', '구분', '내용', '금액(원)', '잔액(원)', '비고']);
     const diff = f.rows.find((r) => r.cells[1] === '수도 정산 차액' && r.cells[0] === '2030. 4. 30.');
     expect(diff?.cells[5]).toBe('');
@@ -74,7 +74,7 @@ describe('엑셀 파일 (실제로 쓰고 다시 읽기)', () => {
     const buf = await writeWorkbook(buildWorkbookSpec(twoPeriods(), '2030-05'));
     const wb = new ExcelJS.Workbook();
     await wb.xlsx.load(buf);
-    expect(wb.worksheets.map((w) => w.name)).toEqual(['정산 요약', '세대별', '기금 장부']);
+    expect(wb.worksheets.map((w) => w.name)).toEqual(['정산표', '정산 요약', '세대별', '기금 장부']);
 
     const s = wb.getWorksheet('정산 요약')!;
     const rowOf = (k: string) => s.getRows(1, s.rowCount)!.find((r) => r.getCell(1).value === k)!;
