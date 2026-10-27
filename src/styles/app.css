@@ -46,3 +46,27 @@
 .install-hint { background: var(--accent-soft); color: var(--accent); border-bottom: 1px solid var(--line); font-size: 13.5px; font-weight: 500; }
 
 .err-page { max-width: 520px; }
+
+/* 한 세대씩 검침: 저장 결과 색, 휴대폰에서 카드 머리 줄이기 */
+.walk .ref div.now.ok b { color: var(--accent); }
+.wmsg.ok { color: var(--accent); }
+.card > .hd .viewsw button { padding: 5px 10px; font-size: 13px; }
+@media (max-width: 700px) {
+  .card > .hd .viewsw button { min-height: 40px; }
+  .chips button.cur { outline-width: 2px; }
+}
+
+/* 휴대폰: 아이폰 SE(375×667)에서 호수부터 버튼까지 스크롤 없이 보이도록 위쪽을 줄인다
+   1줄: 앱 이름 · 상태 · 새 회차 / 2줄: 회차 선택 · 보기 전환 */
+@media (max-width: 640px) {
+  .bar .wrap > h1 { width: auto; flex: 1 1 auto; order: 0; font-size: 15px; }
+  .bar .wrap > .pill { order: 1; }
+  .bar .wrap > #newPeriod { order: 2; margin-left: 0; font-size: 14px; padding-inline: 10px; }
+  .bar .wrap > select { order: 3; }
+  .bar .wrap > .viewsw { order: 4; margin-left: auto; }
+  .bar .wrap > .viewsw button { padding-inline: 10px; }
+  .banner .wrap { padding-block: 6px; gap: 6px 10px; font-size: 13px; }
+  .hide-phone { display: none; }
+  .chips { scrollbar-width: none; }
+  .chips::-webkit-scrollbar { display: none; }
+}

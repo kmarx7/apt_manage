@@ -113,7 +113,7 @@ export function TopBar({ periodId, onPeriod, view, onView }: Props) {
       {needsBackup(data) && (
         <div className="banner no-print" role="status">
           <div className="wrap">
-            <span>확정한 회차가 있습니다. 백업 파일을 저장해 두세요. 다른 기기로 옮길 때도 이 파일을 씁니다.</span>
+            <span>확정한 회차가 있습니다. 백업 파일을 저장해 두세요.</span>
             <button className="btn small primary" onClick={() => void exportBackup()}>
               백업 파일 저장
             </button>
