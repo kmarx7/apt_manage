@@ -4,6 +4,7 @@ import { TopBar, type View } from './components/TopBar';
 import { requestPersist, type PersistState } from './lib/device';
 import { sortPeriods } from './lib/period';
 import { useBillsPdf } from './components/useBillsPdf';
+import { useXlsxExport } from './components/useXlsxExport';
 import { Bills } from './screens/Bills';
 import { Dashboard } from './screens/dashboard/Dashboard';
 import { FirstRun } from './screens/FirstRun';
@@ -13,10 +14,16 @@ import { useStore } from './store';
 /** 정산 칸 아래 파일 저장 버튼 */
 function DashExports({ periodId }: { periodId: string }) {
   const pdf = useBillsPdf(periodId);
+  const xlsx = useXlsxExport(periodId);
   return (
-    <button className="btn small" disabled={pdf.busy} onClick={() => void pdf.run()}>
-      {pdf.busy ? 'PDF 만드는 중…' : '고지서 PDF 저장'}
-    </button>
+    <>
+      <button className="btn small" disabled={xlsx.busy} onClick={() => void xlsx.run()}>
+        {xlsx.busy ? '엑셀 만드는 중…' : '엑셀 파일로 저장'}
+      </button>
+      <button className="btn small" disabled={pdf.busy} onClick={() => void pdf.run()}>
+        {pdf.busy ? 'PDF 만드는 중…' : '고지서 PDF 저장'}
+      </button>
+    </>
   );
 }
 
