@@ -1,0 +1,16 @@
+# Vercel CLI로 올릴 때 제외 (실제 데이터와 빌드에 필요 없는 것)
+# 배포는 깨끗한 체크아웃에서 하지만, 이 파일은 실수를 한 번 더 막는다
+_handoff/
+local-data/
+*.xlsx
+*.pdf
+*.zip
+backup-*.json
+PROMPT.md
+.no-data-strings.json
+dist/
+dev-dist/
+coverage/
+node_modules/
+.DS_Store
+*.tsbuildinfo
