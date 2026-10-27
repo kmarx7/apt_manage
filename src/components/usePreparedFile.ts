@@ -8,6 +8,7 @@
  */
 import { useCallback, useEffect, useState } from 'react';
 import { prefersShare, saveFile } from '../lib/device';
+import { isStaleChunkError, reloadForNewVersion, shortReason } from '../lib/staleChunk';
 import { useToast } from './Toast';
 
 export type Prepared = { blob: Blob; name: string };
@@ -55,7 +56,7 @@ export function usePreparedFile({ build, key, what }: Options) {
         if ((await deliver(ready)) !== 'cancelled') setReady(null);
       } catch (e) {
         console.error(e);
-        toast(`${what} 보내기 실패. 다시 눌러 보세요.`);
+        toast(`${what} 보내기 실패 (${shortReason(e)}). 다시 눌러 보세요.`);
       }
       return;
     }
@@ -72,8 +73,12 @@ export function usePreparedFile({ build, key, what }: Options) {
       }
     } catch (e) {
       console.error(e);
-      toast(`${what} 만들기 실패. 다시 눌러 보세요.`);
       setStage('idle');
+      if (isStaleChunkError(e)) {
+        toast('새 버전을 받는 중입니다. 다시 열리면 한 번 더 눌러 주세요.');
+        if (reloadForNewVersion()) return;
+      }
+      toast(`${what} 만들기 실패 (${shortReason(e)}). 다시 눌러 보세요.`);
     }
   }, [stage, ready, key, build, deliver, toast, what]);
 

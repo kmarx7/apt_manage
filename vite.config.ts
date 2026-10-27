@@ -4,6 +4,8 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  // 설정 화면에 보여 줄 빌드 시각 (아이폰이 새 버전인지 확인용)
+  define: { __APP_BUILD__: JSON.stringify(new Date().toISOString()) },
   plugins: [
     react(),
     VitePWA({

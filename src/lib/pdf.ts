@@ -25,7 +25,12 @@ export async function buildBillsPdf(props: SheetsProps, onProgress?: (done: numb
       const canvas = await html2canvas(sheets[k], { scale: 2, backgroundColor: '#ffffff', logging: false, useCORS: false });
       if (k) doc.addPage();
       doc.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', 0, 0, 210, 297);
+      // iOS 사파리는 캔버스 메모리 합계에 한도가 있어, 다 쓴 캔버스를 바로 0으로 줄여 돌려준다
+      canvas.width = 0;
+      canvas.height = 0;
       onProgress?.(k + 1, sheets.length);
+      // 한 장마다 브라우저에 숨 돌릴 틈을 줘 메모리 정리와 화면 갱신이 되게 한다
+      await new Promise((ok) => setTimeout(ok, 0));
     }
     return doc.output('blob');
   } finally {
