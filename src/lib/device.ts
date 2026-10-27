@@ -30,7 +30,8 @@ export async function saveFile(blob: Blob, filename: string, opts: { share?: boo
   const share = opts.share ?? prefersShare();
   if (share && canShareFile(file)) {
     try {
-      await navigator.share({ files: [file], title: filename });
+      // 파일만 보낸다. 제목·글자를 함께 넣으면 iOS 에어드롭이 실패하는 경우가 있다.
+      await navigator.share({ files: [file] });
       return 'shared';
     } catch (e) {
       if (e instanceof DOMException && e.name === 'AbortError') return 'cancelled';
