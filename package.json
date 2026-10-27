@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "typecheck": "tsc -b",
     "check:repo": "node scripts/check-repo-data.mjs --all",
-    "prepare": "node -e \"try{require('child_process').execSync('git config core.hooksPath .githooks',{stdio:'ignore'})}catch{}\""
+    "prepare": "node -e \"try{require('child_process').execSync('git config core.hooksPath .githooks',{stdio:'ignore'})}catch{}\"",
+    "preview:vercel": "node scripts/serve-dist.mjs"
   },
   "dependencies": {
     "dexie": "^4.4.7",
