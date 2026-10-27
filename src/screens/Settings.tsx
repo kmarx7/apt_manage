@@ -167,6 +167,10 @@ export function Settings({ persist }: { persist: PersistState | null }) {
             <span>저장 지속성</span>
             <b>{persist ? PERSIST_LABEL[persist] : '확인 중…'}</b>
           </div>
+          <div className="stat-line">
+            <span>앱 버전</span>
+            <b>{dateTime(__APP_BUILD__)} 빌드</b>
+          </div>
           <div className="actions" style={{ margin: '10px 0 16px' }}>
             <button className="btn primary" onClick={() => void exportBackup()}>
               백업 파일 저장
