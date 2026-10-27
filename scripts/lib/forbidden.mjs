@@ -74,13 +74,30 @@ export function loadForbidden(root, { fileNames = false } = {}) {
   return { strings, readings, sources };
 }
 
+/** 검침값 쌍은 두 값이 가까이(이 글자 수 안에) 함께 있을 때만 데이터로 본다 */
+const PAIR_WINDOW = 100;
+
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/**
+ * 더 긴 숫자의 일부가 아닌, 따로 선 숫자의 위치들.
+ * 앞뒤에 숫자나 "숫자 사이의 콤마·점"(1,2074 / 2074,5 / 3.2074)이 붙으면 다른 숫자로 본다.
+ * JSON 구분자 콤마("prev":2074,"curr")와 끝의 .0(2074.0)은 같은 숫자로 본다.
+ */
+const numberPositions = (text, v) => {
+  const forms = [v, Number(v).toLocaleString('en-US')].map(escapeRe).join('|');
+  const re = new RegExp(`(?<!\\d|\\d[,.])(?:${forms})(?:\\.0+)?(?!\\d|[,.]\\d)`, 'g');
+  return [...text.matchAll(re)].map((m) => m.index);
+};
+
 /** 문자열 하나를 검사해 걸린 이유 목록을 돌려준다 (값 자체는 넣지 않는다) */
 export function findHits(text, { strings, readings }) {
   const hits = [];
   for (const [s, why] of strings) if (text.includes(s)) hits.push(why);
   for (const r of readings) {
-    const forms = (v) => [v, Number(v).toLocaleString('en-US')];
-    if (forms(r.prev).some((v) => text.includes(v)) && forms(r.curr).some((v) => text.includes(v))) hits.push(`${r.id} 검침값`);
+    const a = numberPositions(text, r.prev);
+    if (!a.length) continue;
+    const b = numberPositions(text, r.curr);
+    if (a.some((i) => b.some((j) => Math.abs(i - j) <= PAIR_WINDOW))) hits.push(`${r.id} 검침값`);
   }
   return hits;
 }
