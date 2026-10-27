@@ -15,7 +15,8 @@ const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8'
 
 const files =
   mode === 'all'
-    ? git('ls-files', '-z').split('\0').filter(Boolean)
+    ? // 푸시되는 것은 커밋된 내용이므로 HEAD 기준으로 목록과 내용을 함께 읽는다
+      git('ls-tree', '-r', '-z', '--name-only', 'HEAD').split('\0').filter(Boolean)
     : git('diff', '--cached', '--name-only', '--diff-filter=ACMR', '-z').split('\0').filter(Boolean);
 
 const forbidden = loadForbidden(root);
@@ -33,7 +34,7 @@ for (const f of files) {
   for (const why of findHits(text, forbidden)) problems.push(`${f}: ${why}`);
 }
 
-const label = mode === 'all' ? '추적 중인 파일' : '커밋할 파일';
+const label = mode === 'all' ? '커밋된 파일' : '커밋할 파일';
 if (forbidden.sources === 0) {
   console.warn(`check-repo-data: 로컬 데이터 파일이 없어 실제 값은 검사하지 못했습니다 (${label} ${files.length}개, 경로만 검사).`);
 }
