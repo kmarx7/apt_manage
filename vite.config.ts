@@ -30,6 +30,10 @@ export default defineConfig({
       },
     }),
   ],
+  build: {
+    // exceljs·jspdf는 파일을 저장할 때만 불러오는 별도 조각이라 크기 경고 기준을 올린다
+    chunkSizeWarningLimit: 1000,
+  },
   test: {
     environment: 'node',
     include: ['tests/**/*.test.ts'],
