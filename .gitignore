@@ -1,0 +1,22 @@
+# --- 실제 데이터: 절대 커밋하지 않는다 (PROMPT.md 0장) ---
+_handoff/
+local-data/
+*.xlsx
+*.pdf
+backup-*.json
+# 실제 데이터가 담긴 인수인계 묶음과 지시서 사본
+*.zip
+/PROMPT.md
+# 로컬 전용 금지 문자열 목록 (check-no-data)
+.no-data-strings.json
+
+# --- 빌드/도구 ---
+node_modules/
+dist/
+dev-dist/
+coverage/
+.vercel/
+.env*
+.DS_Store
+*.log
+*.tsbuildinfo
