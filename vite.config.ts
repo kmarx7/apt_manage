@@ -8,7 +8,6 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['apple-touch-icon.png', 'icon.svg'],
       manifest: {
         name: '예그린 수도정산',
         short_name: '수도정산',
