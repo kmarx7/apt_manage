@@ -1,39 +1,38 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo } from 'react';
 import { billFilename, billInfo } from '../lib/bills';
-import { saveFile } from '../lib/device';
 import { today } from '../lib/format';
 import { calcPeriod } from '../lib/period';
 import { useData } from '../store';
 import { useToast } from './Toast';
+import { usePreparedFile } from './usePreparedFile';
 
-/** 고지서 PDF 저장. 아이폰은 공유 시트, 맥은 내려받기. */
+/** 고지서 PDF 저장. 아이폰은 만든 뒤 한 번 더 눌러 공유 시트, 맥은 바로 내려받기. */
 export function useBillsPdf(periodId: string) {
   const data = useData();
   const toast = useToast();
-  const [busy, setBusy] = useState(false);
+  const p = data.periods.find((x) => x.id === periodId);
+  const ready = p ? calcPeriod(p, data).ready : false;
+
+  const build = useCallback(async () => {
+    if (!p) throw new Error('회차를 찾을 수 없습니다');
+    toast('PDF를 만드는 중입니다…');
+    const r = calcPeriod(p, data);
+    const { buildBillsPdf } = await import('../lib/pdf');
+    const blob = await buildBillsPdf({ p, rows: r.rows, info: billInfo(data.settings), issued: p.issued ?? today() });
+    return { blob, name: billFilename(p) };
+  }, [data, p, toast]);
+
+  // 데이터나 회차가 바뀌면 만들어 둔 PDF는 버린다
+  const key = useMemo(() => ({ data, periodId }), [data, periodId]);
+  const file = usePreparedFile({ build, key, what: 'PDF' });
 
   const run = useCallback(async () => {
-    const p = data.periods.find((x) => x.id === periodId);
-    if (!p || busy) return;
-    const r = calcPeriod(p, data);
-    if (!r.ready) {
+    if (!ready) {
       toast('검침과 고지서 입력을 마치면 PDF를 만들 수 있습니다.');
       return;
     }
-    setBusy(true);
-    toast('PDF를 만드는 중입니다…');
-    try {
-      const { buildBillsPdf } = await import('../lib/pdf');
-      const blob = await buildBillsPdf({ p, rows: r.rows, info: billInfo(data.settings), issued: p.issued ?? today() });
-      const res = await saveFile(blob, billFilename(p));
-      if (res !== 'cancelled') toast(res === 'shared' ? 'PDF를 보냈습니다.' : `${billFilename(p)} 저장`);
-    } catch (e) {
-      console.error(e);
-      toast('PDF를 만들지 못했습니다. 다시 눌러 보세요.');
-    } finally {
-      setBusy(false);
-    }
-  }, [data, periodId, busy, toast]);
+    await file.run();
+  }, [ready, file, toast]);
 
-  return { run, busy };
+  return { ...file, run };
 }

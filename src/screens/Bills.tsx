@@ -65,7 +65,7 @@ export function Bills({ periodId, onSettings }: { periodId: string; onSettings: 
             {periodLabel(p)} 고지서 · A4 {pages}장
           </h2>
           <button className="btn primary" disabled={pdf.busy} onClick={() => void pdf.run()}>
-            {pdf.busy ? 'PDF 만드는 중…' : 'PDF로 저장'}
+            {pdf.busy ? 'PDF 만드는 중…' : pdf.stage === 'ready' ? 'PDF 공유하기' : 'PDF로 저장'}
           </button>
           <button className="btn" onClick={() => window.print()}>
             바로 인쇄
